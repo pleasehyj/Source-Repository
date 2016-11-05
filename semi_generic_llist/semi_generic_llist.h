@@ -1,5 +1,5 @@
-#ifndef __SEMI_GENERIC_LINK_LIST_H__
-#define __SEMI_GENERIC_LINK_LIST_H__
+#ifndef __SEMI_GENERIC_LLIST_H__
+#define __SEMI_GENERIC_LLIST_H__
 
 /* Define the address of data */
 typedef void* DataAddr_t;
@@ -83,7 +83,7 @@ extern int save_llist_to_file(PtLList_t L,const char* filepath,UdFreeNode_t free
 /* Load L from file */
 extern int load_llist_from_file(PtLList_t L,const char* filepath);
 
-#endif //__SEMI_GENERIC_LINK_LIST_H__
+#endif //__SEMI_GENERIC_LLIST_H___
 
 
 

@@ -9,7 +9,7 @@
 #include <fcntl.h>
 
 /* Initialize a linked list */
-PtLList_t create_llist(int dataSize){//,UdFreeNode_t free_node){
+PtLList_t create_llist(int dataSize){
 	PtLList_t L=(PtLList_t)malloc(sizeof(LList_t));
 	if(NULL==L){
 		debug("malloc error\n");
@@ -22,7 +22,6 @@ PtLList_t create_llist(int dataSize){//,UdFreeNode_t free_node){
 	}
 	L->head->next=NULL;
 	L->dataSize=dataSize;
-	//L->free_node=free_node;
 }
 /* Return true if L is empty */
 int is_empty_llist(PtLList_t L){
@@ -137,12 +136,10 @@ PtNode_t find_node_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_node){
 		return NULL;
 	}
 	PtNode_t tmp=L->head->next;
-	int test=0;
 	while(tmp){
 		if(is_equal_node(tmp->dataAddr,dataAddr)){
 			return tmp;
 		}
-		test++;
 		tmp=tmp->next;
 	}
 	debug("no such node\n");
@@ -193,7 +190,6 @@ PtNode_t find_prenode_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_nod
 int delete_node_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_node,UdFreeNode_t free_node){
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
-		//fprintf(stderr,"%s:%d:list is empty\n",__FILE__,__LINE__);
 		return -1;
 	}
 	PtNode_t tmp=find_prenode_llist(L,dataAddr,is_equal_node);
@@ -207,7 +203,6 @@ int delete_node_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_node,UdFr
 int show_llist(PtLList_t L,UdShowNode_t showNode){
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
-		//fprintf(stderr,"%s:%d:list is empty\n",__FILE__,__LINE__);
 		return -1;
 	}
 	PtNode_t tmp=L->head->next;
@@ -268,10 +263,10 @@ int load_llist_from_file(PtLList_t L,const char* filepath){
 	while(0<read(fd,tmpData,L->dataSize)){
 		insert_tail_llist(L,tmpData);
 	}
-	close(fd);
 	free(tmpData);
 	tmpData=NULL;
 	ftruncate(fd,0);
+	close(fd);
 }
 
 #endif
