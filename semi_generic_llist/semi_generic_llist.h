@@ -35,8 +35,6 @@ extern PtLList_t create_llist(int dataSize);
 /* Return true if L is empty */
 extern int is_empty_llist(PtLList_t L);
 
-/* Return true if pos i*/
-
 /* Insert a node at the head */
 extern int insert_head_llist(PtLList_t L,DataAddr_t dataAddr);
 

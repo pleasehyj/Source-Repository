@@ -51,6 +51,7 @@ int main(int argc, const char *argv[])
 	insert_head_llist(L,&s6);
 	show_llist(L,myShow);
 	putchar(10);
+	puts("-----------------is_empty_llist--------------");
 	printf("%d\n",is_empty_llist(L));
 	puts("-----------------delete_head_llist--------------");
 	S tmp;
