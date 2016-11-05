@@ -3,7 +3,6 @@
 #include<string.h>
 #include"semi_generic_lqueue.h"
 #include <unistd.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
