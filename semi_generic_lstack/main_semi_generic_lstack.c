@@ -36,7 +36,7 @@ int main(int argc, const char *argv[])
 	info_t s4={4,'w',"fge"};
 	info_t s5={5,'j',"wedc"};
 	info_t s6={6,'q',"vre"};
-	PtLStack_t S=create_lstack(sizeof(info_t));
+	PtLStack_t S=create_lstack(sizeof(info_t),myFree,myShow);
 
 	puts("-----------------push_lstack--------------");
 	push_lstack(S,&s1);
@@ -49,31 +49,31 @@ int main(int argc, const char *argv[])
 	push_lstack(S,&s4);
 	push_lstack(S,&s5);
 	push_lstack(S,&s6);
-	show_lstack(S,myShow);
+	show_lstack(S);
 	putchar(10);
 	puts("-----------------is_empty_lstack--------------");
 	printf("%d\n",is_empty_lstack(S));
 	puts("-----------------pop_lstack--------------");
 	info_t tmp;
-	pop_lstack(S,&tmp,myFree);
-	pop_lstack(S,&tmp,myFree);
-	pop_lstack(S,&tmp,myFree);
-	show_lstack(S,myShow);
+	pop_lstack(S,&tmp);
+	pop_lstack(S,&tmp);
+	pop_lstack(S,&tmp);
+	show_lstack(S);
 	putchar(10);
 
 	puts("--------------destroy_lstack-----------------");
 #if 0
-	destroy_lstack(S,myFree);
-	show_lstack(S,myShow);
+	destroy_lstack(S);
+	show_lstack(S);
 #endif
 	puts("--------------save_lstack_to_file-----------------");
-	save_lstack_to_file(S,"./database",myFree);
-	show_lstack(S,myShow);
+	save_lstack_to_file(S,"./database");
+	show_lstack(S);
 	printf("sizeof data:%d\n",sizeof(info_t));
 
 	puts("--------------load_lstack_from_file-----------------");
 	load_lstack_from_file(S,"./database");
-	show_lstack(S,myShow);
+	show_lstack(S);
 	return 0;
 }
 

@@ -1,7 +1,8 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include"semi_generic_lstack.h"
+#include "typedef.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "semi_generic_lstack.h"
 #include "debug.h"
 #include <unistd.h>
 #include <sys/types.h>
@@ -9,7 +10,7 @@
 #include <fcntl.h>
 
 /* Initialize a linked stack */
-PtLStack_t create_lstack(int dataSize){
+PtLStack_t create_lstack(int dataSize,UdFreeNode_t free_node,UdShowNode_t show_node){
 	PtLStack_t S=(PtLStack_t)malloc(sizeof(LStack_t));
 	if(NULL==S){
 		debug("malloc error\n");
@@ -22,6 +23,8 @@ PtLStack_t create_lstack(int dataSize){
 	}
 	S->head->next=NULL;
 	S->dataSize=dataSize;
+	S->free_node=free_node;
+	S->show_node=show_node;
 }
 /* Return true if S is empty */
 int is_empty_lstack(PtLStack_t S){
@@ -52,7 +55,7 @@ int push_lstack(PtLStack_t S,DataAddr_t dataAddr){
 
 /* Delete the node at the head, 
  * the space pointed by dataAddr must be enough to contain data*/
-int pop_lstack(PtLStack_t S,DataAddr_t dataAddr,UdFreeNode_t free_node){
+int pop_lstack(PtLStack_t S,DataAddr_t dataAddr){
 	if(is_empty_lstack(S)){
 		debug("stack is empty\n");
 		return -1;
@@ -60,27 +63,27 @@ int pop_lstack(PtLStack_t S,DataAddr_t dataAddr,UdFreeNode_t free_node){
 	PtNode_t tmp=S->head->next;
 	S->head->next=S->head->next->next;
 	memcpy(dataAddr,tmp->dataAddr,S->dataSize);
-	free_node(tmp);
+	S->free_node(tmp);
 	return 0;
 }
 
 
 /* Show data in S */
-int show_lstack(PtLStack_t S,UdShowNode_t showNode){
+int show_lstack(PtLStack_t S){
 	if(is_empty_lstack(S)){
 		debug("stack is empty\n");
 		return -1;
 	}
 	PtNode_t tmp=S->head->next;
 	while(tmp){
-		showNode(tmp);
+		S->show_node(tmp);
 		tmp=tmp->next;
 	}
 	return 0;
 }
 
 /* Destroy S */
-int destroy_lstack(PtLStack_t S,UdFreeNode_t free_node){
+int destroy_lstack(PtLStack_t S){
 	if(is_empty_lstack(S)){
 		debug("stack is empty\n");
 		return -1;
@@ -89,12 +92,12 @@ int destroy_lstack(PtLStack_t S,UdFreeNode_t free_node){
 	while(S->head->next){
 		tmp=S->head->next;
 		S->head->next=S->head->next->next;
-		free_node(tmp);
+		S->free_node(tmp);
 	}
 	return 0;
 }
 /* Save S to file */
-int save_lstack_to_file(PtLStack_t S,const char* filepath,UdFreeNode_t free_node){
+int save_lstack_to_file(PtLStack_t S,const char* filepath){
 
 	int fd=open(filepath,O_WRONLY|O_CREAT|O_TRUNC,0666);
 	if(is_empty_lstack(S)){
@@ -107,10 +110,10 @@ int save_lstack_to_file(PtLStack_t S,const char* filepath,UdFreeNode_t free_node
 		return -2;
 	}
 	while(!is_empty_lstack(S)){
-		pop_lstack(S,tmp,free_node);
+		pop_lstack(S,tmp);
 		write(fd,tmp,S->dataSize);
 	}
-	destroy_lstack(S,free_node);
+	destroy_lstack(S);
 	close(fd);
 	free(tmp);
 	tmp=NULL;
