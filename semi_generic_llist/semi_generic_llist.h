@@ -1,6 +1,6 @@
 #ifndef __SEMI_GENERIC_LLIST_H__
 #define __SEMI_GENERIC_LLIST_H__
-
+#include "typedef.h"
 /* Initialize a linked list */
 extern PtLList_t create_llist(int dataSize,UdFreeNode_t free_node,UdShowNode_t show_node,UdCmp_t is_equal_node);
 
