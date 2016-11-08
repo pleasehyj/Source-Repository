@@ -1,15 +1,16 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include"semi_generic_llist.h"
-#include "debug.h"
+#include "typedef.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "debug.h"
+#include "semi_generic_llist.h"
 
 /* Initialize a linked list */
-PtLList_t create_llist(int dataSize){
+PtLList_t create_llist(int dataSize,UdFreeNode_t free_node,UdShowNode_t show_node,UdCmp_t is_equal_node){
 	PtLList_t L=(PtLList_t)malloc(sizeof(LList_t));
 	if(NULL==L){
 		debug("malloc error\n");
@@ -22,6 +23,9 @@ PtLList_t create_llist(int dataSize){
 	}
 	L->head->next=NULL;
 	L->dataSize=dataSize;
+	L->free_node= free_node;
+	L->show_node=show_node;
+	L->is_equal_node=is_equal_node;
 }
 /* Return true if L is empty */
 int is_empty_llist(PtLList_t L){
@@ -52,7 +56,7 @@ int insert_head_llist(PtLList_t L,DataAddr_t dataAddr){
 
 /* Delete the node at the head, 
  * the space pointed by dataAddr must be enough to contain data*/
-int delete_head_llist(PtLList_t L,DataAddr_t dataAddr,UdFreeNode_t free_node){
+int delete_head_llist(PtLList_t L,DataAddr_t dataAddr){
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
 		return -1;
@@ -60,7 +64,7 @@ int delete_head_llist(PtLList_t L,DataAddr_t dataAddr,UdFreeNode_t free_node){
 	PtNode_t tmp=L->head->next;
 	L->head->next=L->head->next->next;
 	memcpy(dataAddr,tmp->dataAddr,L->dataSize);
-	free_node(tmp);
+	L->free_node(tmp);
 	return 0;
 }
 
@@ -116,7 +120,7 @@ PtNode_t find_pretail_llist(PtLList_t L){
 }
 
 /* Delete the node at the tail */
-int delete_tail_llist(PtLList_t L,DataAddr_t dataAddr,UdFreeNode_t free_node){
+int delete_tail_llist(PtLList_t L,DataAddr_t dataAddr){
 
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
@@ -124,20 +128,20 @@ int delete_tail_llist(PtLList_t L,DataAddr_t dataAddr,UdFreeNode_t free_node){
 	}
 	PtNode_t prevTail=find_pretail_llist(L);
 	memcpy(dataAddr,prevTail->next->dataAddr,L->dataSize);
-	free_node(prevTail->next);
+	L->free_node(prevTail->next);
 	prevTail->next=NULL;
 	return 0;
 }
 
 /* Return the address of the node containing the data given */
-PtNode_t find_node_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_node){
+PtNode_t find_node_llist(PtLList_t L,DataAddr_t dataAddr){
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
 		return NULL;
 	}
 	PtNode_t tmp=L->head->next;
 	while(tmp){
-		if(is_equal_node(tmp->dataAddr,dataAddr)){
+		if(L->is_equal_node(tmp->dataAddr,dataAddr)){
 			return tmp;
 		}
 		tmp=tmp->next;
@@ -147,7 +151,7 @@ PtNode_t find_node_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_node){
 }
 
 /* Insert a node with a data given */
-int insert_node_llist(PtLList_t L,DataAddr_t dataAddr_obj,DataAddr_t dataAddr_new,UdCmp_t is_equal_node){
+int insert_node_llist(PtLList_t L,DataAddr_t dataAddr_obj,DataAddr_t dataAddr_new){
 	PtNode_t tmp=(PtNode_t)malloc(sizeof(Node_t));
 	if(NULL==tmp){
 		return -1;
@@ -158,27 +162,27 @@ int insert_node_llist(PtLList_t L,DataAddr_t dataAddr_obj,DataAddr_t dataAddr_ne
 		return -1;
 	}
 	memcpy(tmp->dataAddr,dataAddr_new,L->dataSize);
-	PtNode_t node=find_node_llist(L,dataAddr_obj,is_equal_node);
+	PtNode_t node=find_node_llist(L,dataAddr_obj);
 	tmp->next=node->next;
 	node->next=tmp;
 	return 0;
 }
 /* Modify a node with a data given */
-int modify_node_llist(PtLList_t L, DataAddr_t dataAddr_obj,DataAddr_t dataAddr_new,UdCmp_t is_equal_node){
-	PtNode_t node=find_node_llist(L,dataAddr_obj,is_equal_node);
+int modify_node_llist(PtLList_t L, DataAddr_t dataAddr_obj,DataAddr_t dataAddr_new){
+	PtNode_t node=find_node_llist(L,dataAddr_obj);
 	memcpy(node->dataAddr,dataAddr_new,L->dataSize);
 	return 0;
 }
-#if 1
+
 /* Return the address of the previous node of the node given */
-PtNode_t find_prenode_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_node){
+PtNode_t find_prenode_llist(PtLList_t L,DataAddr_t dataAddr){
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
 		return NULL;
 	}
 	PtNode_t tmp=L->head->next;
 	while(tmp){
-		if(is_equal_node(dataAddr,tmp->next->dataAddr)){
+		if(L->is_equal_node(dataAddr,tmp->next->dataAddr)){
 			return tmp;
 		}
 		tmp=tmp->next;
@@ -187,34 +191,33 @@ PtNode_t find_prenode_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_nod
 }
 
 /* Delete a node with a data given */
-int delete_node_llist(PtLList_t L,DataAddr_t dataAddr,UdCmp_t is_equal_node,UdFreeNode_t free_node){
+int delete_node_llist(PtLList_t L,DataAddr_t dataAddr){
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
 		return -1;
 	}
-	PtNode_t tmp=find_prenode_llist(L,dataAddr,is_equal_node);
+	PtNode_t tmp=find_prenode_llist(L,dataAddr);
 	PtNode_t node=tmp->next;
 	tmp->next=tmp->next->next;
-	free_node(node);
+	L->free_node(node);
 }
 
-#endif
 /* Show data in L */
-int show_llist(PtLList_t L,UdShowNode_t showNode){
+int show_llist(PtLList_t L){
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
 		return -1;
 	}
 	PtNode_t tmp=L->head->next;
 	while(tmp){
-		showNode(tmp);
+		L->show_node(tmp);
 		tmp=tmp->next;
 	}
 	return 0;
 }
 
 /* Destroy L */
-int destroy_llist(PtLList_t L,UdFreeNode_t free_node){
+int destroy_llist(PtLList_t L){
 	if(is_empty_llist(L)){
 		debug("list is empty\n");
 		return -1;
@@ -223,13 +226,13 @@ int destroy_llist(PtLList_t L,UdFreeNode_t free_node){
 	while(L->head->next){
 		tmp=L->head->next;
 		L->head->next=L->head->next->next;
-		free_node(tmp);
+		L->free_node(tmp);
 	}
 	return 0;
 }
+
 /* Save L to file */
-#if 1
-int save_llist_to_file(PtLList_t L,const char* filepath,UdFreeNode_t free_node){
+int save_llist_to_file(PtLList_t L,const char* filepath){
 
 	int fd=open(filepath,O_WRONLY|O_CREAT|O_TRUNC,0666);
 	if(is_empty_llist(L)){
@@ -242,10 +245,10 @@ int save_llist_to_file(PtLList_t L,const char* filepath,UdFreeNode_t free_node){
 		return -2;
 	}
 	while(!is_empty_llist(L)){
-		delete_head_llist(L,tmp,free_node);
+		delete_head_llist(L,tmp);
 		write(fd,tmp,L->dataSize);
 	}
-	destroy_llist(L,free_node);
+	destroy_llist(L);
 	close(fd);
 	free(tmp);
 	tmp=NULL;
@@ -259,7 +262,6 @@ int load_llist_from_file(PtLList_t L,const char* filepath){
 		debug("malloc error\n");
 		return -1;
 	}
-	int i=0;
 	while(0<read(fd,tmpData,L->dataSize)){
 		insert_tail_llist(L,tmpData);
 	}
@@ -268,6 +270,4 @@ int load_llist_from_file(PtLList_t L,const char* filepath){
 	ftruncate(fd,0);
 	close(fd);
 }
-
-#endif
 

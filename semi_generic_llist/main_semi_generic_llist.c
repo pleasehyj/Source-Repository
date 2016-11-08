@@ -36,7 +36,7 @@ int main(int argc, const char *argv[])
 	S s4={4,'w',"fge"};
 	S s5={5,'j',"wedc"};
 	S s6={6,'q',"vre"};
-	PtLList_t L=create_llist(sizeof(S));
+	PtLList_t L=create_llist(sizeof(S),myFree,myShow,myEqual);
 
 	puts("-----------------insert_head_llist--------------");
 	insert_head_llist(L,&s1);
@@ -49,66 +49,67 @@ int main(int argc, const char *argv[])
 	insert_head_llist(L,&s4);
 	insert_head_llist(L,&s5);
 	insert_head_llist(L,&s6);
-	show_llist(L,myShow);
+	show_llist(L);
 	putchar(10);
 	puts("-----------------is_empty_llist--------------");
 	printf("%d\n",is_empty_llist(L));
 	puts("-----------------delete_head_llist--------------");
 	S tmp;
-	delete_head_llist(L,&tmp,myFree);
-	delete_head_llist(L,&tmp,myFree);
-	delete_head_llist(L,&tmp,myFree);
-	show_llist(L,myShow);
+	delete_head_llist(L,&tmp);
+	delete_head_llist(L,&tmp);
+	delete_head_llist(L,&tmp);
+	delete_head_llist(L,&tmp);
+	show_llist(L);
 	putchar(10);
 	puts("---------------insert_tail_llist---------------");
 	insert_tail_llist(L,&s6);
 	insert_tail_llist(L,&s6);
 	insert_tail_llist(L,&s6);
 	insert_tail_llist(L,&s6);
-	show_llist(L,myShow);
+	show_llist(L);
 	putchar(10);
 
 	puts("--------------delete_tail_llist-----------------");
-	delete_tail_llist(L,&tmp,myFree);
-	delete_tail_llist(L,&tmp,myFree);
-	show_llist(L,myShow);
+	delete_tail_llist(L,&tmp);
+	delete_tail_llist(L,&tmp);
+	show_llist(L);
 	putchar(10);
 
 	puts("------------insert_node_llist-------------------");
-	insert_node_llist(L,&s6,&s1,myEqual);
-	insert_node_llist(L,&s6,&s1,myEqual);
-	insert_node_llist(L,&s6,&s1,myEqual);
-	insert_node_llist(L,&s6,&s1,myEqual);
-	show_llist(L,myShow);
+	insert_node_llist(L,&s6,&s1);
+	insert_node_llist(L,&s6,&s1);
+	insert_node_llist(L,&s6,&s1);
+	insert_node_llist(L,&s6,&s1);
+	show_llist(L);
 	putchar(10);
 
 
 	puts("-----------delete_node_llist--------------------");
-	delete_node_llist(L,&s1,myEqual,myFree);
-	delete_node_llist(L,&s1,myEqual,myFree);
-	show_llist(L,myShow);
+	delete_node_llist(L,&s1);
+	delete_node_llist(L,&s1);
+	show_llist(L);
 	putchar(10);
 
 	puts("--------------modify_node_llist-----------------");
 	S s7={7,'z',"ew"};
-	modify_node_llist(L,&s2,&s7,myEqual);
-	show_llist(L,myShow);
+	modify_node_llist(L,&s2,&s7);
+	show_llist(L);
 
 	puts("--------------destroy_llist-----------------");
 #if 0
-	destroy_llist(L,myFree);
-	show_llist(L,myShow);
+	destroy_llist(L);
+	show_llist(L);
 #endif
 	puts("--------------save_llist_to_file-----------------");
-	save_llist_to_file(L,"./database",myFree);
-	show_llist(L,myShow);
+	save_llist_to_file(L,"./database");
+	show_llist(L);
 	printf("sizeof data:%d\n",sizeof(S));
 
 
 	puts("--------------load_llist_from_file-----------------");
 	S* stmp=(S*)malloc(sizeof(stmp));
 	load_llist_from_file(L,"./database");
-	show_llist(L,myShow);
+	show_llist(L);
 	return 0;
 }
 
