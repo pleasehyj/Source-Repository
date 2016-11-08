@@ -36,7 +36,7 @@ int main(int argc, const char *argv[])
 	S s4={4,'w',"fge"};
 	S s5={5,'j',"wedc"};
 	S s6={6,'q',"vre"};
-	PtLQu_t Q=create_lqueue(sizeof(S));
+	PtLQu_t Q=create_lqueue(sizeof(S),myFree,myShow);
 	in_lqueue(Q,&s1);
 	in_lqueue(Q,&s2);
 	in_lqueue(Q,&s3);
@@ -47,29 +47,32 @@ int main(int argc, const char *argv[])
 	in_lqueue(Q,&s4);
 	in_lqueue(Q,&s5);
 	in_lqueue(Q,&s6);
-	show_lqueue(Q,myShow);
+	show_lqueue(Q);
 	putchar(10);
 
 	puts("------------is_empty_lqueue----------------");
 	printf("%d\n",is_empty_lqueue(Q));
 	puts("------------out_lqueue----------------");
 	S tmp;
-	out_lqueue(Q,&tmp,myFree);
-	out_lqueue(Q,&tmp,myFree);
-	out_lqueue(Q,&tmp,myFree);
-	show_lqueue(Q,myShow);
+	out_lqueue(Q,&tmp);
+	out_lqueue(Q,&tmp);
+	out_lqueue(Q,&tmp);
+	show_lqueue(Q);
 	putchar(10);
 
 	puts("--------------save_lqueue_to_file-----------------");
-	save_lqueue_to_file(Q,"./database",myFree);
-	show_lqueue(Q,myShow);
+	save_lqueue_to_file(Q,"./database");
+	show_lqueue(Q);
 	printf("sizeof data:%d\n",sizeof(S));
-
-
+	puts("--------------destroy_lqueue-----------------");
+#if 0
+	destroy_lqueue(Q);
+	show_lqueue(Q);
+#endif 
 	puts("--------------load_lqueue_from_file-----------------");
 	S* stmp=(S*)malloc(sizeof(stmp));
 	load_lqueue_from_file(Q,"./database");
-	show_lqueue(Q,myShow);
+	show_lqueue(Q);
 	return 0;
 }
 

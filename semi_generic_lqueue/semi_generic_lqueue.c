@@ -1,15 +1,16 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include"semi_generic_lqueue.h"
-#include "debug.h"
+#include "typedef.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "debug.h"
+#include "semi_generic_lqueue.h"
 
 /* Initialize a linked queue */
-PtLQu_t create_lqueue(int dataSize){
+PtLQu_t create_lqueue(int dataSize,UdFreeNode_t free_node,UdShowNode_t show_node){
 	PtLQu_t Q=(PtLQu_t)malloc(sizeof(LQu_t));
 	if(NULL==Q){
 		debug("malloc error\n");
@@ -22,14 +23,17 @@ PtLQu_t create_lqueue(int dataSize){
 	}
 	Q->head->next=NULL;
 	Q->dataSize=dataSize;
+	Q->free_node=free_node;
+	Q->show_node=show_node;
 }
 /* Return true if Q is empty */
 int is_empty_lqueue(PtLQu_t Q){
 	return NULL==Q->head->next;
 }
+
 /* Output a node in the queue, 
  * the space pointed by dataAddr must be enough to contain data*/
-int out_lqueue(PtLQu_t Q,DataAddr_t dataAddr,UdFreeNode_t free_node){
+int out_lqueue(PtLQu_t Q,DataAddr_t dataAddr){
 	if(is_empty_lqueue(Q)){
 		debug("queue is empty\n");
 		return -1;
@@ -37,7 +41,7 @@ int out_lqueue(PtLQu_t Q,DataAddr_t dataAddr,UdFreeNode_t free_node){
 	PtNode_t tmp=Q->head->next;
 	Q->head->next=Q->head->next->next;
 	memcpy(dataAddr,tmp->dataAddr,Q->dataSize);
-	free_node(tmp);
+	Q->free_node(tmp);
 	return 0;
 }
 
@@ -74,21 +78,21 @@ int in_lqueue(PtLQu_t Q,DataAddr_t dataAddr){
 	return 0;
 }
 /* Show data in Q */
-int show_lqueue(PtLQu_t Q,UdShowNode_t showNode){
+int show_lqueue(PtLQu_t Q){
 	if(is_empty_lqueue(Q)){
 		debug("queue is empty\n");
 		return -1;
 	}
 	PtNode_t tmp=Q->head->next;
 	while(tmp){
-		showNode(tmp);
+		Q->show_node(tmp);
 		tmp=tmp->next;
 	}
 	return 0;
 }
 
 /* Destroy Q */
-int destroy_lqueue(PtLQu_t Q,UdFreeNode_t free_node){
+int destroy_lqueue(PtLQu_t Q){
 	if(is_empty_lqueue(Q)){
 		debug("queue is empty\n");
 		return -1;
@@ -97,12 +101,12 @@ int destroy_lqueue(PtLQu_t Q,UdFreeNode_t free_node){
 	while(Q->head->next){
 		tmp=Q->head->next;
 		Q->head->next=Q->head->next->next;
-		free_node(tmp);
+		Q->free_node(tmp);
 	}
 	return 0;
 }
 /* Save Q to file */
-int save_lqueue_to_file(PtLQu_t Q,const char* filepath,UdFreeNode_t free_node){
+int save_lqueue_to_file(PtLQu_t Q,const char* filepath){
 
 	int fd=open(filepath,O_WRONLY|O_CREAT|O_TRUNC,0666);
 	if(is_empty_lqueue(Q)){
@@ -115,12 +119,12 @@ int save_lqueue_to_file(PtLQu_t Q,const char* filepath,UdFreeNode_t free_node){
 		return -2;
 	}
 	while(!is_empty_lqueue(Q)){
-		out_lqueue(Q,tmp,free_node);
+		out_lqueue(Q,tmp);
 		write(fd,tmp,Q->dataSize);
 	}
-	destroy_lqueue(Q,free_node);
+	destroy_lqueue(Q);
 	close(fd);
-	free(tmp);
+	Q->free_node(tmp);
 	tmp=NULL;
 }
 

@@ -1,5 +1,6 @@
 #ifndef __MACRO_TEST_H__
 #define __MACRO_TEST_H__
+
 #include<stdio.h>
 
 #ifdef DEBUG
