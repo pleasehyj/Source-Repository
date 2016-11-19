@@ -1,5 +1,5 @@
-#ifndef __PARSER_H__
-#define __PARSER_H__
+#ifndef __PARSER_SERVER_H__
+#define __PARSER_SERVER_H__
 
 #include <sqlite3.h>
 #include <protocol.h>
@@ -33,7 +33,7 @@ extern int upload_parser(sqlite3* db,char* usrname,struct file* file,int* upfd);
 
 extern int dnload_parser(sqlite3* db,char* usrname,struct file* recvdata,int* dnfd,int* size);
 
-#endif //__PARSER_H__
+#endif //__PARSER_SERVER_H__
 
 
 

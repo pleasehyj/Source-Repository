@@ -1,24 +1,33 @@
 CC:=gcc 
 LINK:= -lpthread -lsqlite3
+HEADER:= -I ./common/include/
 DEBUG:=
-CFLAGS:= -g -I./include/ $(DEBUG)
-REPODIR:=./repo/
-SRCDIR:=./src/
-SER_SRC:=$(SRCDIR)main_server.c $(SRCDIR)parser.c $(SRCDIR)thread_pool.c $(SRCDIR)semi_generic_lqueue.c $(SRCDIR)debug.c
-CLI_SRC:=$(SRCDIR)main_client.c 
+CFLAGS:= -g -O0 $(HEADER) $(DEBUG)
 
-TARDIR:=./elf/
-SERVER:=$(TARDIR)server
-CLIENT:=$(TARDIR)client
+COM_SRC_DIR:= ./common/src/
+SER_SRC_DIR:= ./src_server/
+CLI_SRC_DIR:= ./src_client/
+
+COM_SRC:= debug.c
+SER_SRC:=main_server.c parser_server.c thread_pool.c semi_generic_lqueue.c 
+CLI_SRC:=main_client.c parser_client.c
+
+COM_SRC_PATH:=$(addprefix $(COM_SRC_DIR),$(COM_SRC))
+SER_SRC_PATH:=$(addprefix $(SER_SRC_DIR),$(SER_SRC))
+CLI_SRC_PATH:=$(addprefix $(CLI_SRC_DIR),$(CLI_SRC))
+
+TAR_DIR:=./elf/
+SERVER_NAME:=server
+CLIENT_NAME:=client
+
+SER_TAR_PATH:=$(addprefix $(TAR_DIR),$(SERVER_NAME))
+CLI_TAR_PATH:=$(addprefix $(TAR_DIR),$(CLIENT_NAME))
+
 
 all:
-	$(CC) $(CFLAGS) $(SER_SRC) $(LINK) -o $(SERVER)
-	$(CC) $(CFLAGS) $(CLI_SRC) -o $(CLIENT)
+	$(CC) $(CFLAGS) $(SER_SRC_PATH) $(COM_SRC_PATH) $(LINK) -o $(SER_TAR_PATH)
+	$(CC) $(CFLAGS) $(CLI_SRC_PATH) $(COM_SRC_PATH) -o $(CLI_TAR_PATH)
 
-.PHONY:clean cleanall
 clean:
-	$(RM) $(SERVER) $(CLIENT)
-cleanall:
-	$(RM) $(SERVER) $(CLIENT) $(REPODIR)*
-	mv $(SRCDIR)*.db $(REPODIR)
-	
+	$(RM) $(SER_TAR_PATH) $(CLI_TAR_PATH)
+

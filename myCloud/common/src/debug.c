@@ -9,6 +9,3 @@ void tohex(char* start, int len){
 	putchar(10);						
 }
 
-
-
-

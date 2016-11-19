@@ -8,7 +8,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "semi_generic_lqueue.h"
-#include "parser.h"
+#include "parser_server.h"
 #include "thread_pool.h"
 #include "debug.h"
 #include <unistd.h>
