@@ -41,12 +41,14 @@ sudo service tftpd-hpa restart
 echo -e '\n'
 
 echo "nfs service"
-sudo mkdir /nfs
+echo "Please input nfs dir"
+read nfsdir
+sudo mkdir $nfsdir
 sudo apt-get install nfs-kernel-server nfs-common portmap -y
 #sudo vi /etc/exports
 sudo touch /etc/exports
 sudo chmod 0777 /etc/exports
-sudo echo "/nfs 192.168.1.*	(rw,sync,no_root_squash)" > /etc/exports
+sudo echo "$nfsdir 192.168.1.*	(rw,sync,no_root_squash)" > /etc/exports
 echo -e '\n'
 
 echo "putty"
